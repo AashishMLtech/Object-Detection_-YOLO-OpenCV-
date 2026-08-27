@@ -1,94 +1,230 @@
-# YOLO-object-detection-with-OpenCV
-Object detection using YOLO object detector
+# YOLO Object Detection with OpenCV
 
-### Detect objects in both images and video streams using Deep Learning, OpenCV, and Python.
+This project shows how to detect objects in images, video files, and live webcam streams using:
 
-I’ll be using YOLOv3 in this project, in particular, YOLO trained on the COCO dataset.
+- `YOLOv3` for object detection
+- `OpenCV` for computer vision and DNN inference
+- `Python` as the application language
 
-The COCO dataset consists of 80 labels, including, but not limited to:
+The project was adapted from an existing reference repository and reorganized into a cleaner local setup. The concept, model files, and general approach were inspired by the original source, while this version is written as a personal working copy.
 
-- People
-- Bicycles
-- Cars and trucks
-- Airplanes
-- Stop signs and fire hydrants
-- Animals, including cats, dogs, birds, horses, cows, and sheep, to name a few
-- Kitchen and dining objects, such as wine glasses, cups, forks, knives, spoons, etc.
-…and much more!
+## Project Goal
 
-You can find a full list of what YOLO trained on the COCO dataset can detect <a href="https://github.com/pjreddie/darknet/blob/master/data/coco.names" target="_blank"><b>using this link.</b></a>
+The goal is to understand the full object-detection pipeline:
 
-- yolo-coco : The YOLOv3 object detector pre-trained (on the COCO dataset) model files. These were trained by the <a href="https://pjreddie.com/darknet/yolo/" target="_blank"> <b>Darknet team.</b> </a>
+1. load a pre-trained YOLO model
+2. read an input image, video, or webcam frame
+3. run inference through OpenCV’s DNN module
+4. collect predictions and confidences
+5. apply non-max suppression
+6. draw bounding boxes and labels on the output
 
-## YOLO object detection in images
+## Tech Stack
+
+### Core Technologies
+
+- `Python 3`
+- `OpenCV` for reading media and running deep-learning inference
+- `YOLOv3` as the object detection model
+- `COCO dataset` labels for the detected classes
+
+### Python Packages
+
+- `numpy` for array math and bounding-box handling
+- `opencv-python` for `cv2`
+- `imutils` for webcam/video helpers in the real-time demo
+
+### Model Assets
+
+The `yolo-coco` folder is expected to contain:
+
+- `yolov3.cfg` - YOLO network configuration
+- `yolov3.weights` - trained model weights
+- `coco.names` - class labels used by the detector
+
+## What YOLO Is Doing
+
+YOLO stands for **You Only Look Once**. It predicts objects in a single forward pass instead of scanning an image in many steps.
+
+In this project, YOLO detects objects such as:
+
+- people
+- bicycles
+- cars
+- dogs
+- chairs
+- bottles
+- bags
+
+The model is trained on the COCO dataset, which contains 80 common object categories.
+
+## How The Code Works
+
+Each script follows the same general pipeline:
+
+1. Parse command-line arguments
+2. Load the class names from `coco.names`
+3. Generate a color for each class
+4. Load the YOLO config and weights
+5. Read the input image, video, or webcam frame
+6. Build a blob from the image/frame
+7. Run a forward pass through the network
+8. Extract detections with class IDs and confidence scores
+9. Filter weak predictions using a confidence threshold
+10. Apply non-max suppression to remove overlapping boxes
+11. Draw labels and bounding boxes
+12. Display or save the final result
+
+## Flowchart
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Parse command line arguments]
+    B --> C[Load class labels from coco.names]
+    C --> D[Load YOLO cfg and weights]
+    D --> E[Read input image or video frame]
+    E --> F[Create blob with OpenCV DNN]
+    F --> G[Run forward pass through YOLO]
+    G --> H[Collect class IDs, confidences, and boxes]
+    H --> I[Filter by confidence threshold]
+    I --> J[Apply Non-Max Suppression]
+    J --> K[Draw bounding boxes and labels]
+    K --> L{Input type?}
+    L -->|Image| M[Display image]
+    L -->|Video| N[Write output video]
+    L -->|Webcam| O[Show live frame stream]
+    M --> P[End]
+    N --> P
+    O --> P
+```
+
+## Repository Structure
+
+- `Object dection using image/` - image detection demo
+- `Object detection using video/` - video detection demo
+- `real-time-object-detection/` - webcam-based real-time demo
+- `yolo-coco/` - model files and class names
+
+## Key Parameters
+
+### Image and Video Demos
+
+The main scripts use these common parameters:
+
+- `--confidence` or `-c`
+  - minimum confidence required to keep a detection
+  - default: `0.5`
+- `--threshold` or `-t`
+  - non-max suppression threshold
+  - default: `0.3`
+
+### Image Script Parameters
+
+`yolo.py`:
+
+- `--image` or `-i`
+  - path to the input image
+
+### Video Script Parameters
+
+`yolo_video.py`:
+
+- `--input` or `-i`
+  - path to the input video
+- `--output` or `-o`
+  - path where the output video is written
+- `--yolo` or `-y`
+  - base folder containing YOLO model files
+
+### Real-Time Script
+
+`real_time_object_detection.py`:
+
+- uses webcam source `0`
+- uses `MobileNetSSD_deploy.prototxt.txt`
+- uses `MobileNetSSD_deploy.caffemodel`
+- uses a fixed confidence threshold inside the script
 
 ## Installation
 
-- `pip install numpy`
-- `pip install opencv-python`
+Install the required packages:
 
-## To Run the project
+```bash
+pip install numpy opencv-python imutils
+```
 
-- `python yolo.py --image images/baggage_claim.jpg`
+If you want a safer setup, you can also create and activate a virtual environment first.
 
-## Screenshots
-![Image](/Object%20dection%20using%20image/1.png)
+## How To Run
 
-Here you can see that YOLO has not only detected each person in the input image, but also the suitcases as well!
+Make sure you are inside the repository folder:
 
-Furthermore, if you take a look at the right corner of the image you’ll see that YOLO has also detected the handbag on the lady’s shoulder.
+```bash
+cd "C:\Users\M S I\Desktop\VSCode\Object detection_YOLO\YOLO-object-detection-with-OpenCV"
+```
 
-<img src="https://github.com/yash42828/YOLO-object-detection-with-OpenCV/blob/master/Object%20dection%20using%20image/2.png">
+### 1. Run Image Detection
 
-YOLO is able to correctly detect each of the players on the pitch, including the soccer ball itself. Notice the person in the background who is detected despite the area being highly blurred and partially obscured.
+```bash
+python "Object dection using image/yolo.py" --image "Object dection using image/images/baggage_claim.jpg"
+```
 
-## YOLO object detection in video streams
+### 2. Run Video Detection
 
-## Installation
+```bash
+python "Object detection using video/yolo_video.py" --input "Object detection using video/videos/airport.mp4" --output "Object detection using video/output/airport_output.avi" --yolo yolo-coco
+```
 
-- `pip install numpy`
-- `pip install opencv-python`
+### 3. Run Real-Time Webcam Detection
 
-## To Run the project
+```bash
+python "real-time-object-detection/real_time_object_detection.py"
+```
 
-- `python yolo_video.py --input videos/airport.mp4 --output output/airport_output.avi --yolo yolo-coco`
+## Expected Output
 
-## Screenshots
+- Image demo opens a window with boxes and labels drawn on the image
+- Video demo saves an output `.avi` file and may also process multiple frames
+- Webcam demo opens a live camera window and draws detections in real time
 
-<img src="https://github.com/yash42828/YOLO-object-detection-with-OpenCV/blob/master/Object%20detection%20using%20video/car.gif">
+## Important Notes
 
-In the video/GIF, you can see not only the vehicles being detected, but people, as well as the traffic lights, are detected too!
+- The YOLO model files must be real files, not Git LFS pointer stubs.
+- If `yolov3.cfg` or `yolov3.weights` are tiny text files, the detector will not run.
+- The folder name `Object dection using image` is kept as it appears in the original project.
+- The scripts use Windows-style backslashes in a few string paths, which can produce `SyntaxWarning` messages in newer Python versions.
+- If OpenCV compatibility issues appear, use a stable `opencv-python 4.x` build.
 
-The YOLO object detector is performing quite well here. 
+## Troubleshooting
 
-## Limitation:
-### Arguably the largest limitation and drawback of the YOLO object detector is that:
+### `ReadDarknetFromCfgStream` Error
 
-- It does not always handle small objects well
-- It especially does not handle objects grouped close together
-- The reason for this limitation is due to the YOLO algorithm itself:
+This usually means one of the YOLO model files is not the actual model file. Check:
 
-The YOLO object detector divides an input image into an SxS grid where each cell in the grid predicts only a single object.
-If there exist multiple, small objects in a single cell then YOLO will be unable to detect them, ultimately leading to missed object detections.
-Therefore, if you know your dataset consists of many small objects grouped close together then you should not use the YOLO object detector.
+```bash
+Get-Item "yolo-coco\yolov3.cfg","yolo-coco\yolov3.weights" | Select-Object Name,Length
+```
 
-In terms of small objects, Faster R-CNN tends to work the best; however, it’s also the slowest.
+If the files are only a few bytes long, they are probably Git LFS pointers instead of the real model assets.
 
-SSDs can also be used here; however, SSDs can also struggle with smaller objects (but not as much as YOLO).
+### Webcam Does Not Open
 
-SSDs often give a nice tradeoff in terms of speed and accuracy as well.
+- Make sure your camera is not being used by another app
+- Check Windows camera permissions
+- Try another camera index if needed
 
-## Real-time object detection with deep learning and OpenCV
+### Import Errors
 
-## Installation
+- Confirm `numpy`, `opencv-python`, and `imutils` are installed in the same Python environment you are using to run the script
 
-- `pip install numpy`
-- `pip install opencv-python`
-- `pip install imutils`
+## Attribution
 
-## To Run the project
+Original reference repository:
 
-- `python real_time_object_detection.py`
+https://github.com/yash42828/YOLO-object-detection-with-OpenCV
+
+This workspace version keeps the project idea and core workflow inspired by that source, while presenting it as a cleaner personal project write-up.
+
 
 ## Screenshots
 <img src="https://github.com/yash42828/YOLO-object-detection-with-OpenCV/blob/master/real-time-object-detection/real_time.gif">
